@@ -64,6 +64,51 @@ function App() {
             },
           },
         });
+        
+        // --- INJECT END-OF-CHAT BUTTON ON COMPLETION ---
+        setTimeout(() => {
+          const container = document.querySelector('#n8n-chat-container');
+          if (container) {
+            const observer = new MutationObserver(() => {
+              const elements = document.querySelectorAll('.chat-message-text, .chat-message p, .n8n-chat p, span');
+              elements.forEach(el => {
+                if (el.textContent.includes('[SESSION_COMPLETE]')) {
+                  // Hide the secret trigger word from the user
+                  el.innerHTML = el.innerHTML.replace('\\[SESSION_COMPLETE\\]', '').replace('[SESSION_COMPLETE]', '');
+                  
+                  // Double check if we already added the button
+                  if (!document.querySelector('#final-reset-btn')) {
+                    const inputWrapper = document.querySelector('.chat-input-wrapper') || document.querySelector('.chat-input');
+                    if (inputWrapper) {
+                      inputWrapper.innerHTML = ''; // Nuke the text box so they can't type
+                      inputWrapper.style.display = 'flex';
+                      inputWrapper.style.justifyContent = 'center';
+                      inputWrapper.style.padding = '20px';
+                      inputWrapper.style.background = 'transparent';
+                      
+                      const btn = document.createElement('button');
+                      btn.id = 'final-reset-btn';
+                      btn.className = 'reset-btn';
+                      btn.style.width = '100%';
+                      btn.style.padding = '1rem';
+                      btn.style.justifyContent = 'center';
+                      btn.style.fontSize = '1.1rem';
+                      btn.innerHTML = '🔄 Start a New Chat';
+                      btn.onclick = () => {
+                         localStorage.clear();
+                         sessionStorage.clear();
+                         window.location.reload();
+                      };
+                      inputWrapper.appendChild(btn);
+                    }
+                  }
+                }
+              });
+            });
+            observer.observe(container, { childList: true, subtree: true, characterData: true });
+          }
+        }, 1500);
+
       `;
       document.body.appendChild(script);
     }
@@ -127,17 +172,11 @@ function App() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="chat-card"
           >
-            <div className="chat-header-custom" style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div className="chat-header-custom" style={{ display: 'flex', justifyContent: 'center' }}>
                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                  <BotMessageSquare size={22} color="var(--primary)" />
                  <span>Talk to our AI Agent</span>
                </div>
-                <button 
-                  onClick={resetSession}
-                  className="reset-btn"
-                >
-                  <RefreshCw size={14} /> New Chat
-                </button>
             </div>
             <div id="n8n-chat-container"></div>
           </motion.div>
