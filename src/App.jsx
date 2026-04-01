@@ -70,17 +70,36 @@ function App() {
           const container = document.querySelector('#n8n-chat-container');
           if (container) {
             const observer = new MutationObserver(() => {
+              // --- HIDE RAW TOOL CALL MESSAGES ---
+              const allMessages = document.querySelectorAll('.chat-message');
+              allMessages.forEach(msg => {
+                const text = msg.textContent || '';
+                if (
+                  text.includes('_Tool') ||
+                  text.includes('</function>') ||
+                  text.includes('function>') ||
+                  text.includes('"emailSubject"') ||
+                  text.includes('"Text_Body"') ||
+                  text.includes('"whatsappMessageBody"') ||
+                  text.includes('Google_Sheets_Tool') ||
+                  text.includes('Gmail_Tool') ||
+                  text.includes('WhatsApp_Tool') ||
+                  (text.includes('Full_Name=') && text.includes('lead_score='))
+                ) {
+                  msg.style.display = 'none';
+                }
+              });
+
+              // --- DETECT SESSION COMPLETE & SHOW RESET BUTTON ---
               const elements = document.querySelectorAll('.chat-message-text, .chat-message p, .n8n-chat p, span');
               elements.forEach(el => {
                 if (el.textContent.includes('[SESSION_COMPLETE]')) {
-                  // Hide the secret trigger word from the user
                   el.innerHTML = el.innerHTML.replace('\\[SESSION_COMPLETE\\]', '').replace('[SESSION_COMPLETE]', '');
                   
-                  // Double check if we already added the button
                   if (!document.querySelector('#final-reset-btn')) {
                     const inputWrapper = document.querySelector('.chat-input-wrapper') || document.querySelector('.chat-input');
                     if (inputWrapper) {
-                      inputWrapper.innerHTML = ''; // Nuke the text box so they can't type
+                      inputWrapper.innerHTML = '';
                       inputWrapper.style.display = 'flex';
                       inputWrapper.style.justifyContent = 'center';
                       inputWrapper.style.padding = '20px';
