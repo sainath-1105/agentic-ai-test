@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, ShieldCheck, Zap, BarChart3, BotMessageSquare, RefreshCw } from 'lucide-react';
 
-const N8N_CHAT_URL = 'https://gunpark.app.n8n.cloud/webhook/aa70d23e817c47479d6969e04bfa45e0/chat';
+const N8N_CHAT_URL = 'https://gunpark.app.n8n.cloud/webhook/b1c01de5-d4a4-4344-b5b4-c6e986dd4003/chat';
 let isChatInjected = false;
 
 function App() {
