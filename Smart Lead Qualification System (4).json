@@ -1,0 +1,353 @@
+{
+  "name": "Smart Lead Qualification System",
+  "nodes": [
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        528,
+        528
+      ],
+      "id": "d495849c-91db-4296-b94f-6e20c37ac3d2",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "iEAOyn6A87BYZNQ0",
+          "name": "Groq account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Welcome to Krytil Lead Solutions! 👋\nI'm here to help answer your questions and learn about your project needs.",
+        "options": {
+          "inputPlaceholder": "Type your message here...",
+          "loadPreviousSession": "memory",
+          "showWelcomeScreen": true,
+          "getStarted": "Start Conversation",
+          "subtitle": "Chat with our AI assistant",
+          "title": "Krytil Lead Solutions"
+        }
+      },
+      "id": "a30d4309-1d62-42e4-ae9e-493106e38786",
+      "name": "Chat Trigger",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        240,
+        304
+      ],
+      "webhookId": "b1c01de5-d4a4-4344-b5b4-c6e986dd4003"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "id": "d52f4bbf-3f20-424f-9fdc-1a293df5deed",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        312,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a conversational Lead Qualification Chatbot. Your ONLY job right now is to talk to the user and collect 6 details, ONE question at a time.\n\nREQUIRED DETAILS:\n1. Full Name\n2. Email Address\n3. Company Size\n4. Budget Range\n5. Service Interested In\n6. Project Requirement Details\n\n🚨 MASSIVE RED WARNING: DO NOT CALL ANY TOOLS YET! 🚨\n- If the user just says 'hi', reply with a greeting and ask for their name.\n- NEVER trigger the Google Sheets, Gmail, or WhatsApp tools if ANY of the 6 required details are missing, empty, or 'Not Provided'.\n- If you are missing information, your ONLY action must be to ask the user a question to retrieve it.\n- DO NOT CALL TOOLS AFTER EVERY MESSAGE!\n\nOnce the conversation has naturally progressed and you HAVE SUCCESSFULLY SECURED ALL 6 DETAILS from the user, you must EVALUATE the lead internally and calculate three things:\n1. Lead Score (1-10): Calculate based on their answers. (Higher budget/company size = higher score).\n2. Priority (Low, Medium, or High): Based on the Lead Score.\n3. Reason: A brief explanation of why they received this score.\n\nONLY NOW (AT THE VERY END) ARE YOU ALLOWED TO USE TOOLS:\n1. Use Google Sheets Tool to save the data.\n2. Use Gmail Tool to send a summary email.\n3. Use WhatsApp Tool to send a notification.\n\nFORMATTING RULE FOR TOOLS:\nWhen generating the text for Gmail and WhatsApp, you MUST format the message with distinct line breaks (newlines) between each piece of information. NEVER send the lead summary as a single continuous line. Each detail (Name, Email, Lead Score, Priority, etc.) must be on its own line.\n\nFinally, thank the user and say our team will be in touch.",
+          "maxIterations": 20,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "21c7cd6d-951d-4bbe-a792-53104ec2ec64",
+      "name": "Lead Qualification Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        720,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Append row in sheet in Google Sheets. You MUST calculate and pass the Lead Score, Priority, and Reason data to this tool.\n",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "13XAnylrEHhyCmh4EtJ0QcXtepdhdeBzKnDWvJwB9WFI",
+          "mode": "list",
+          "cachedResultName": "krytel lead ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13XAnylrEHhyCmh4EtJ0QcXtepdhdeBzKnDWvJwB9WFI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13XAnylrEHhyCmh4EtJ0QcXtepdhdeBzKnDWvJwB9WFI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Full Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Full_Name', ``, 'string') }}",
+            "Email Address": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Email_Address', ``, 'string') }}",
+            "Company Size": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Company_Size', ``, 'string') }}",
+            "Budget Range": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Budget_Range', ``, 'string') }}",
+            "Service Interested In": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Service_Interested_In', ``, 'string') }}",
+            "Project Requirement Details": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Project_Requirement_Details', ``, 'string') }}",
+            "lead score": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('lead_score', ``, 'string') }}",
+            "priority": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('priority', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "name "
+          ],
+          "schema": [
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email Address",
+              "displayName": "Email Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Company Size",
+              "displayName": "Company Size",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Budget Range",
+              "displayName": "Budget Range",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lead score",
+              "displayName": "lead score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Service Interested In",
+              "displayName": "Service Interested In",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Project Requirement Details",
+              "displayName": "Project Requirement Details",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "5b26009e-d8c1-42ca-bd2b-5dfcf2c5be45",
+      "name": "Google Sheets Tool",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        720,
+        528
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "yAFnVOudDrXuRPHj",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "=sainathr2411@gmail.com\n",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('emailSubject', 'Email subject line') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', `Complete email message body containing ALL collected details AND the calculated Lead Score, Priority, and Reason. MUST use newlines.\n\n`, 'string') }}",
+        "options": {}
+      },
+      "id": "b4c5bd70-a145-43a3-b04e-7b4d675c1474",
+      "name": "Gmail Tool",
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        848,
+        528
+      ],
+      "webhookId": "39528881-70b1-4a6f-8013-4797c304c8d6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "jcYh202xutarjoA2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "=1032823013253563",
+        "recipientPhoneNumber": "=916361040802",
+        "textBody": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('whatsappMessageBody', 'The complete text message to send on WhatsApp, containing the collected lead details, Lead Score, Priority, and Reason separated by distinct line breaks.', 'string') }}",
+        "additionalFields": {}
+      },
+      "id": "5d265550-de84-4b27-9fad-9b529247fe01",
+      "name": "WhatsApp Tool",
+      "type": "n8n-nodes-base.whatsAppTool",
+      "typeVersion": 1.1,
+      "position": [
+        976,
+        528
+      ],
+      "webhookId": "b6f7ceea-270a-4e19-9230-d67e2e88c5e0",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "I9uAcKBdgg2yMV5D",
+          "name": "WhatsApp account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Lead Qualification Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "Lead Qualification Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Chat Trigger",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Lead Qualification Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Qualification Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Google Sheets Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Lead Qualification Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Lead Qualification Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Lead Qualification Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a1fcaee9-10db-4032-81ff-d315e671d1da",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "efed473e888db96adf91b601c3bca0ee014479447e24d76bf211c252ac24b433"
+  },
+  "id": "47PLw2oU3AT26d6I",
+  "tags": []
+}
